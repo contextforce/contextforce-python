@@ -63,19 +63,24 @@ class ContextForceClient:
     
     # Extract PDF (from URL or file content)
     def extract_pdf(self, pdf_source: Union[str, bytes], result_format: str = 'markdown',
+                    mode: str = 'auto', page_number: Optional[int] = None,
                     model: Optional[str] = None, openai_api_key: Optional[str] = None,
-                    claude_api_key: Optional[str] = None) -> Any:
+                    anthropic_api_key: Optional[str] = None) -> Any:
         
         # Construct headers
         headers = {}
 
         if result_format == 'json':
             headers['Accept'] = 'application/json'
+        if mode:
+            headers['CF-Mode'] = mode
+        if page_number:
+            headers['CF-Page-Number'] = str(page_number)
         if model:
-            if model == 'gpt-4o-mini':
+            if model == 'gpt-4o-mini' or model == 'gpt-4o':
                 headers['CF-OpenAI-API-Key'] = openai_api_key or os.getenv('OPENAI_API_KEY')
-            elif model == 'claude-3.5':
-                headers['CF-Claude-API-Key'] = claude_api_key or os.getenv('CLAUDE_API_KEY')
+            elif model == 'anthropic-sonnet-3.5':
+                headers['CF-Anthropic-API-Key'] = anthropic_api_key or os.getenv('ANTHROPIC_API_KEY')
             headers['CF-Model'] = model
 
         if isinstance(pdf_source, str):

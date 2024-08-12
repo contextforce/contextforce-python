@@ -50,13 +50,17 @@ Extracts content from a PDF URL or file content. The content can be returned in 
 #### Parameters
 - `pdf_source`: A string (PDF URL) or bytes (PDF file content).
 - `result_format`: The format of the result, either `'markdown'` (default) or `'json'`.
-- `model`: Optional model to use, e.g., `'gpt-4o-mini'`, `'claude-3.5'`.
-- `openai_api_key`: Optional OpenAI API key if `model` is `'gpt-4o-mini'`.
-- `claude_api_key`: Optional Claude API key if `model` is `'claude-3.5'`.
+- `page_number`: The pages to extract , either all (default) or given page number
+- `mode`: The OCR mode to use: [`'auto'` (default), `'no-ocr'`, `'full-optimized-ocr'`, `'full-llm-ocr'`]
+- `model`: Optional model to use: [`'gpt-4o'`, `'gpt-4o-mini'`, `'anthropic-sonnet-3.5'`]
+- `openai_api_key`: Optional OpenAI API key if `model` is `'gpt-4o'` or `'gpt-4o-mini'`.
+- `anthropic_api_key`: Optional Claude API key if `model` is `'anthropic-sonnet-3.5''`.
 
 #### Headers Set by SDK
 - **Authorization**: Set to `Bearer {api_key}`.
 - **Accept**: Set to `'application/json'` if `result_format` is `'json'`.
+- **CF-Mode**: Set to given mode if `mode` is specified
+- **CF-Page-Number**: Set to given page number is `page_number` is specified
 - **CF-Model**: Set to the model name if `model` is specified.
 - **CF-OpenAI-API-Key**: Set to the OpenAI API key if `model` is `'gpt-4o-mini'`.
 - **CF-Claude-API-Key**: Set to the Claude API key if `model` is `'claude-3.5'`.
@@ -65,11 +69,11 @@ Extracts content from a PDF URL or file content. The content can be returned in 
 
 #### Example Usage
 ```python
-# Convert the PDF to markdown without using OCR LLM feature
+# Convert the PDF to markdown using Full LLM OCR mode
 result = client.extract_pdf("https://arxiv.org/pdf/2210.05189")
 
 # Convert the PDF to markdown and use gpt-4o-mini to handle the OCR for pages with special elements like formula, table and image
-result = client.extract_pdf("https://arxiv.org/pdf/2210.05189", model="gpt-4o-mini", openai_api_key="sk-xxxxxx")
+result = client.extract_pdf("https://arxiv.org/pdf/2210.05189", mode="full-llm-ocr", model="gpt-4o-mini", openai_api_key="sk-xxxxxx")
 ```
 
 ### 3. extract_product
