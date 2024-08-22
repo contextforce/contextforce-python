@@ -23,7 +23,7 @@ client = ContextForceClient(api_key='your_api_key')
 
 ### 1. extract_content
 
-Extracts content from a given page URL or list of URLs. The content can be returned in Markdown or JSON format.
+Extracts content from a given page URL or list of URLs. The content can be returned in Markdown or JSON format.  
 
 #### Parameters
 - `urls`: A string (single URL) or a list of URLs.
@@ -173,4 +173,4 @@ result = client.search_youtube("how to train my dog", follow_links=True, top_n=5
 
 ---
 
-This documentation provides detailed information on how to use each function within the `ContextForceClient` SDK and the headers automatically set by the SDK for each function.
+This documentation provides detailed information on how to use each function within the `ContextForceClient` SDK and the headers automatically set by the SDK for each one of the functions.
