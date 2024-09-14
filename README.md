@@ -50,11 +50,13 @@ Extracts content from a PDF URL or file content. The content can be returned in 
 #### Parameters
 - `pdf_source`: A string (PDF URL) or bytes (PDF file content).
 - `result_format`: The format of the result, either `'markdown'` (default) or `'json'`.
-- `page_number`: The pages to extract , either all (default) or given page number
+- `page_number`: The pages to extract , either all (default) or given page numbers in the form of a comma separated list
 - `mode`: The OCR mode to use: [`'auto'` (default), `'no-ocr'`, `'full-optimized-ocr'`, `'full-llm-ocr'`]
 - `model`: Optional model to use: [`'gpt-4o'`, `'gpt-4o-mini'`, `'anthropic-sonnet-3.5'`]
 - `openai_api_key`: Optional OpenAI API key if `model` is `'gpt-4o'` or `'gpt-4o-mini'`.
 - `anthropic_api_key`: Optional Claude API key if `model` is `'anthropic-sonnet-3.5''`.
+- `gemini_api_key`: Optional Claude API key if `model` is `'gemini-1.5-flash-001''`.
+
 
 #### Headers Set by SDK
 - **Authorization**: Set to `Bearer {api_key}`.
@@ -62,8 +64,9 @@ Extracts content from a PDF URL or file content. The content can be returned in 
 - **CF-Mode**: Set to given mode if `mode` is specified
 - **CF-Page-Number**: Set to given page number is `page_number` is specified
 - **CF-Model**: Set to the model name if `model` is specified.
-- **CF-OpenAI-API-Key**: Set to the OpenAI API key if `model` is `'gpt-4o-mini'`.
+- **CF-OpenAI-API-Key**: Set to the OpenAI API key if `model` is `'gpt-4o-mini'` or `'gpt-4o'`.
 - **CF-Claude-API-Key**: Set to the Claude API key if `model` is `'claude-3.5'`.
+- **CF-Gemini-API-Key**: Set to the Gemini API key if `model` is `'gemini-1.5-flash-001'`.
 - **Content-Type**: Set to `'multipart/form-data'` for file uploads.
 - **CF-Content-Type**: Set to `'application/pdf'` when uploading PDF content.
 

@@ -63,9 +63,9 @@ class ContextForceClient:
     
     # Extract PDF (from URL or file content)
     def extract_pdf(self, pdf_source: Union[str, bytes], result_format: str = 'markdown',
-                    mode: str = 'auto', page_number: Optional[int] = None,
+                    mode: str = 'no-ocr', page_number: Optional[str] = None,
                     model: Optional[str] = None, openai_api_key: Optional[str] = None,
-                    anthropic_api_key: Optional[str] = None) -> Any:
+                    anthropic_api_key: Optional[str] = None, gemini_api_key: Optional[str] = None) -> Any:
         
         # Construct headers
         headers = {}
@@ -75,12 +75,14 @@ class ContextForceClient:
         if mode:
             headers['CF-Mode'] = mode
         if page_number:
-            headers['CF-Page-Number'] = str(page_number)
+            headers['CF-Page-Number'] = page_number
         if model:
             if model == 'gpt-4o-mini' or model == 'gpt-4o':
                 headers['CF-OpenAI-API-Key'] = openai_api_key or os.getenv('OPENAI_API_KEY')
             elif model == 'anthropic-sonnet-3.5':
                 headers['CF-Anthropic-API-Key'] = anthropic_api_key or os.getenv('ANTHROPIC_API_KEY')
+            elif model == 'gemini-1.5-flash-001':
+                headers['CF-Gemini-API-Key'] = gemini_api_key or os.getenv('GEMINI_API_KEY')
             headers['CF-Model'] = model
 
         if isinstance(pdf_source, str):
