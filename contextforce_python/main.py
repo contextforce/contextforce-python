@@ -33,10 +33,9 @@ class ContextForceClient:
     
     def _post_file(self, url: str, files: dict, headers: Optional[dict] = None) -> Any:
         headers = headers or {}
-        headers['Content-Type'] = 'multipart/form-data'  # Set content type for file uploads
         response = requests.post(url, files=files, headers={**self.headers, **headers})
         response.raise_for_status()
-        if 'application/json' in response.headers.get('Content-Type', ''):
+        if 'application/json' in response.headers.get('content-type', ''):
             return response.json()
         else:
             return response.text  # For Markdown or other text-based responses
@@ -62,13 +61,58 @@ class ContextForceClient:
 
     
     # Extract PDF (from URL or file content)
-    def extract_pdf(self, pdf_source: Union[str, bytes], result_format: str = 'markdown',
+    def extract_pdf(self, pdf_source: str, result_format: str = 'markdown',
                     mode: str = 'no-ocr', page_number: Optional[str] = None,
                     model: Optional[str] = None, openai_api_key: Optional[str] = None,
                     anthropic_api_key: Optional[str] = None, gemini_api_key: Optional[str] = None) -> Any:
         
+        """
+            Extracts content from a PDF source and returns it in the specified format.
+
+            Args:
+                pdf_source (str): The source of the PDF, either a URL or local file path.
+                result_format (str, optional): The format of the result. Defaults to 'markdown'.
+                mode (str, optional): The mode of extraction, e.g., 'no-ocr'. Defaults to 'no-ocr'.
+                page_number (Optional[str], optional): Specific page numbers to extract. Defaults to None.
+                model (Optional[str], optional): The model to use for extraction. Defaults to None.
+                openai_api_key (Optional[str], optional): API key for OpenAI models. Defaults to None.
+                anthropic_api_key (Optional[str], optional): API key for Anthropic models. Defaults to None.
+                gemini_api_key (Optional[str], optional): API key for Gemini models. Defaults to None.
+
+            Returns:
+                Any: The extracted content in the specified format.
+        """
+        # RAISE ERROR FOR INVALID INPUTS
+        valid_formats = ["json", "markdown"]
+        valid_modes = ['auto', 'no-ocr', 'full-llm-ocr']
+        valid_models = ["gemini-1.5-flash-001", "gpt-4o-mini", "gpt-4o", "anthropic-sonnet-3.5"]
+
+        if result_format not in valid_formats:
+            raise ValueError(f"Invalid result format. Must be one of {valid_formats}.")
+
+        if mode not in valid_modes:
+            raise ValueError(f"Invalid mode. Must be one of {valid_modes}.")
+
+        if mode == 'full-llm-ocr' or mode == 'auto':
+            if not model or not (openai_api_key or anthropic_api_key or gemini_api_key):
+                raise ValueError("LLM model and at least one API key must be provided for 'auto' or 'full-llm-ocr' modes.")
+            if model not in valid_models:
+                raise ValueError(f"Invalid LLM model. Must be one of {valid_models}.")
+
+        # API key checks based on the chosen model
+        api_key_requirements = {
+            "anthropic-sonnet-3.5": anthropic_api_key,
+            "gpt-4o-mini": openai_api_key,
+            "gpt-4o": openai_api_key,
+            "gemini-1.5-flash-001": gemini_api_key
+        }
+
+        if model in api_key_requirements and not api_key_requirements[model]:
+            raise ValueError(f"{model.split('-')[0].capitalize()} API key must be provided for '{model}' LLM model.")
+        
         # Construct headers
         headers = {}
+        headers['CF-Result-Format'] = result_format
 
         if result_format == 'json':
             headers['Accept'] = 'application/json'
@@ -78,21 +122,22 @@ class ContextForceClient:
             headers['CF-Page-Number'] = page_number
         if model:
             if model == 'gpt-4o-mini' or model == 'gpt-4o':
-                headers['CF-OpenAI-API-Key'] = openai_api_key or os.getenv('OPENAI_API_KEY')
+                headers['CF-OpenAI-Api-Key'] = openai_api_key or os.getenv('OPENAI_API_KEY')
             elif model == 'anthropic-sonnet-3.5':
-                headers['CF-Anthropic-API-Key'] = anthropic_api_key or os.getenv('ANTHROPIC_API_KEY')
+                headers['CF-Anthropic-Api-Key'] = anthropic_api_key or os.getenv('ANTHROPIC_API_KEY')
             elif model == 'gemini-1.5-flash-001':
-                headers['CF-Gemini-API-Key'] = gemini_api_key or os.getenv('GEMINI_API_KEY')
+                headers['CF-Gemini-Api-Key'] = gemini_api_key or os.getenv('GEMINI_API_KEY')
             headers['CF-Model'] = model
 
-        if isinstance(pdf_source, str):
+        if (pdf_source.startswith('http://') or pdf_source.startswith('https://')):
             # If pdf_source is a URL
             return self._get(f'{self._BASE_URL}{pdf_source}', headers)
         else:
             # If pdf_source is file content (bytes)
-            headers['CF-Content-Type'] = 'application/pdf'  # Custom header to indicate PDF content
-            files = {'file': pdf_source}
-            return self._post_file(f'{self._BASE_URL}', files, headers)
+            files=[
+                ('file',('file.pdf',open(pdf_source,'rb'),'application/pdf'))
+            ]
+            return self._post_file(f'{self._BASE_URL}', files=files, headers=headers)
 
    
     # Extract content from page url

@@ -1,5 +1,5 @@
 # import pytest
-from contextforce_python import ContextForceClient
+from contextforce_python.main import ContextForceClient
 
 # def test_extract_content():
 #     client = ContextForceClient()
@@ -7,16 +7,18 @@ from contextforce_python import ContextForceClient
 #     print(result)
 
 def test_extract_pdf():
-    # api_key = 'your_api_key_here'
     client = ContextForceClient()
 
-    pdf_file_path = '2210.05189v3.pdf'
-    
-    with open(pdf_file_path, 'rb') as file:
-        pdf_content = file.read()
+    pdf_file_path = 'tests/2210.05189v3.pdf'  
+    pdf_file_url = 'https://arxiv.org/pdf/2210.05189v3'  
 
     result = client.extract_pdf(
-        pdf_source=pdf_content,
+        pdf_source=pdf_file_url,
+        result_format='json',
+        mode='full-llm-ocr',
+        page_number='1',
+        model = 'gpt-4o-mini',
+        openai_api_key='sk-xxx'
     )
     print(result)
 
