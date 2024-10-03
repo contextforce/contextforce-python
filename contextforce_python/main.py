@@ -73,7 +73,7 @@ class ContextForceClient:
                 pdf_source (str): The source of the PDF, either a URL or local file path.
                 result_format (str, optional): The format of the result. Defaults to 'markdown'.
                 mode (str, optional): The mode of extraction, e.g., 'no-ocr'. Defaults to 'no-ocr'.
-                page_number (Optional[str], optional): Specific page numbers to extract. Defaults to None.
+                page_number (Optional[str], optional): Specific page numbers to extract separated by commas. Defaults to None.
                 model (Optional[str], optional): The model to use for extraction. Defaults to None.
                 openai_api_key (Optional[str], optional): API key for OpenAI models. Defaults to None.
                 anthropic_api_key (Optional[str], optional): API key for Anthropic models. Defaults to None.
